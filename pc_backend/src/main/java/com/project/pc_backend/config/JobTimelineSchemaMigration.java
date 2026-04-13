@@ -5,18 +5,28 @@ import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 @Component
 public class JobTimelineSchemaMigration {
 
-        private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final DataSource dataSource;
 
-    public JobTimelineSchemaMigration(JdbcTemplate jdbcTemplate) {
-                this.jdbcTemplate = jdbcTemplate;
+    public JobTimelineSchemaMigration(JdbcTemplate jdbcTemplate, DataSource dataSource) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.dataSource = dataSource;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void migrate() {
+        if (!isMySql()) {
+            return;
         }
 
-        @EventListener(ApplicationReadyEvent.class)
-        public void migrate() {
-                Integer reservedColumnCount = jdbcTemplate.queryForObject(
+        Integer reservedColumnCount = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
                 FROM information_schema.COLUMNS
@@ -51,6 +61,15 @@ public class JobTimelineSchemaMigration {
             jdbcTemplate.execute(
                     "UPDATE job_timeline SET job_description = COALESCE(NULLIF(job_description, ''), `desc`)"
             );
+        }
+    }
+
+    private boolean isMySql() {
+        try (Connection connection = dataSource.getConnection()) {
+            String productName = connection.getMetaData().getDatabaseProductName();
+            return productName != null && productName.toLowerCase().contains("mysql");
+        } catch (SQLException exception) {
+            return false;
         }
     }
 }
