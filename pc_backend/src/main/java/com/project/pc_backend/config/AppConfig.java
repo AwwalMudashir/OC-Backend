@@ -4,7 +4,7 @@ package com.project.pc_backend.config;
 import com.project.pc_backend.filter.JwtAuthenticationFilter;
 import com.project.pc_backend.service.UserDataDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,15 +15,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsWebFilter;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import java.util.List;
 
 
 @Configuration
@@ -31,17 +30,18 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class AppConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+    @Value("${app.allowed.origins:http://localhost:3000}")
+    private String allowedOrigins;
+
+    public AppConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
-    public UserDetailsService userDetailsService(){
-        return new UserDataDetailsService();
+    public BCryptPasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -50,12 +50,14 @@ public class AppConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception{
         return http
                 .csrf(custom -> custom.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(registry -> registry
-                        .requestMatchers("/api/donate","/api/contact","/api/verify-donation","/user/register", "/user/login", "/user/validate/**").permitAll()
+                .requestMatchers("/api/donate","/api/contact","/api/verify-donation","/api/admin/register", "/api/admin/login","/api/education-history","/api/job-history","/api/event-history", "/uploads/**").permitAll()
                         .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> {})
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -69,9 +71,24 @@ public class AppConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider dao = new DaoAuthenticationProvider(userDetailsService());
-        dao.setPasswordEncoder(passwordEncoder());
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(
+            UserDataDetailsService userDataDetailsService,
+            BCryptPasswordEncoder passwordEncoder
+    ){
+        DaoAuthenticationProvider dao = new DaoAuthenticationProvider(userDataDetailsService);
+        dao.setPasswordEncoder(passwordEncoder);
 
         return dao;
     }

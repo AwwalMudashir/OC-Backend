@@ -2,13 +2,10 @@ package com.project.pc_backend.dto;
 
 import com.project.pc_backend.model.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 public class UserDataDetails implements UserDetails {
     private User user;
@@ -20,10 +17,9 @@ public class UserDataDetails implements UserDetails {
         this.user = user;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(indexes = {
+        @Index(name = "idx_status", columnList = "status"),
+        @Index(name = "idx_created_at", columnList = "createdAt")
+})
 public class Donation {
 
     @Id
