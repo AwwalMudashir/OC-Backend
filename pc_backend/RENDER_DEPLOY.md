@@ -10,9 +10,11 @@
 
 Set these in Render before the first deploy:
 
-- `SPRING_DATASOURCE_URL`: your hosted MySQL connection string
+- `SPRING_DATASOURCE_URL`: your hosted database JDBC connection string
+- `SPRING_DATASOURCE_DRIVER_CLASS_NAME`: `org.postgresql.Driver` for Render Postgres
 - `SPRING_DATASOURCE_USERNAME`: database username
 - `SPRING_DATASOURCE_PASSWORD`: database password
+- `SPRING_JPA_HIBERNATE_DIALECT`: `org.hibernate.dialect.PostgreSQLDialect` for Render Postgres
 - `SPRING_MAIL_USERNAME`: SMTP username
 - `SPRING_MAIL_PASSWORD`: SMTP password
 - `APP_EMAIL`: sender email address
@@ -25,6 +27,7 @@ Set these in Render before the first deploy:
 ## Important deployment notes
 
 - Do not use `localhost` for the database on Render. Render runs your backend in its own container, so `localhost` points back to that container, not your laptop.
+- If you use Render Postgres, prefer the internal database host and build a JDBC URL in this format: `jdbc:postgresql://HOST:5432/DATABASE_NAME`.
 - Event image uploads need persistent storage if you want them to survive restarts or redeploys. The provided `render.yaml` mounts a disk at `/data` and sets `APP_UPLOAD_DIR=/data/uploads`.
 - If you deploy without a disk, uploaded images will be ephemeral.
 
@@ -57,9 +60,11 @@ Example run:
 
 ```bash
 docker run --rm -p 8080:8080 \
-  -e SPRING_DATASOURCE_URL="jdbc:mysql://host:3306/db_name" \
+  -e SPRING_DATASOURCE_URL="jdbc:postgresql://host:5432/db_name" \
+  -e SPRING_DATASOURCE_DRIVER_CLASS_NAME="org.postgresql.Driver" \
   -e SPRING_DATASOURCE_USERNAME="db_user" \
   -e SPRING_DATASOURCE_PASSWORD="db_password" \
+  -e SPRING_JPA_HIBERNATE_DIALECT="org.hibernate.dialect.PostgreSQLDialect" \
   -e SPRING_MAIL_USERNAME="your-email@example.com" \
   -e SPRING_MAIL_PASSWORD="your-password" \
   -e APP_EMAIL="your-email@example.com" \

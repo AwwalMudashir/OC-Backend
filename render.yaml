@@ -16,10 +16,14 @@ services:
         sync: false
       - key: SPRING_DATASOURCE_URL
         sync: false
+      - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+        value: org.postgresql.Driver
       - key: SPRING_DATASOURCE_USERNAME
         sync: false
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false
+      - key: SPRING_JPA_HIBERNATE_DIALECT
+        value: org.hibernate.dialect.PostgreSQLDialect
       - key: SPRING_MAIL_HOST
         value: smtp.gmail.com
       - key: SPRING_MAIL_PORT
