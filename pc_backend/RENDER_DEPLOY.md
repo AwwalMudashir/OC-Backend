@@ -10,10 +10,11 @@
 
 Set these in Render before the first deploy:
 
-- `SPRING_PROFILES_ACTIVE`: `render`
 - `SPRING_DATASOURCE_URL`: your hosted database JDBC connection string
+- `SPRING_DATASOURCE_DRIVER_CLASS_NAME`: `org.postgresql.Driver` for Render Postgres
 - `SPRING_DATASOURCE_USERNAME`: database username
 - `SPRING_DATASOURCE_PASSWORD`: database password
+- `SPRING_JPA_HIBERNATE_DIALECT`: `org.hibernate.dialect.PostgreSQLDialect` for Render Postgres
 - `SPRING_MAIL_USERNAME`: SMTP username
 - `SPRING_MAIL_PASSWORD`: SMTP password
 - `APP_EMAIL`: sender email address
@@ -27,11 +28,9 @@ Set these in Render before the first deploy:
 
 Do not commit real credentials into `src/main/resources/application.properties`.
 
-For local runs, create a gitignored file named `.env.properties` in the project root and put your local values there. Spring loads it through `spring.config.import`.
+For local runs, create a gitignored file named `src/main/resources/application-secrets.properties` and put your local values there. Spring loads it through `spring.config.import`.
 
-The app now starts with the `local` profile by default. Render should use the `render` profile.
-
-An example template is provided in `.env.properties.example`.
+An example template is provided in `src/main/resources/application-secrets.properties.example`.
 
 ## Important deployment notes
 
@@ -69,10 +68,11 @@ Example run:
 
 ```bash
 docker run --rm -p 8080:8080 \
-  -e SPRING_PROFILES_ACTIVE="render" \
   -e SPRING_DATASOURCE_URL="jdbc:postgresql://host:5432/db_name" \
+  -e SPRING_DATASOURCE_DRIVER_CLASS_NAME="org.postgresql.Driver" \
   -e SPRING_DATASOURCE_USERNAME="db_user" \
   -e SPRING_DATASOURCE_PASSWORD="db_password" \
+  -e SPRING_JPA_HIBERNATE_DIALECT="org.hibernate.dialect.PostgreSQLDialect" \
   -e SPRING_MAIL_USERNAME="your-email@example.com" \
   -e SPRING_MAIL_PASSWORD="your-password" \
   -e APP_EMAIL="your-email@example.com" \
