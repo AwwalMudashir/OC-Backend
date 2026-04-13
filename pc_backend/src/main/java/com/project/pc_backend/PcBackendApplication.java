@@ -10,6 +10,7 @@ public class PcBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PcBackendApplication.class, args);
+//		App on Render now
 	}
 
 	@Bean
