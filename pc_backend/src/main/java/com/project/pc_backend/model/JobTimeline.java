@@ -23,4 +23,7 @@ public class JobTimeline{
 
     @Column(name = "job_description", columnDefinition = "TEXT")
     private String desc;
+
+    @Column(name = "done_by")
+    private String doneBy;
 }

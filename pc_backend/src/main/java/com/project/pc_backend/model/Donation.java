@@ -31,6 +31,9 @@ public class Donation {
 
     private String reference;
 
+    @Column(name = "done_by")
+    private String doneBy;
+
     @Enumerated(EnumType.STRING)
     private DonationStatus status;
 

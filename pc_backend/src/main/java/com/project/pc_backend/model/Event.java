@@ -33,6 +33,9 @@ public class Event {
     @Column(name = "image_url", columnDefinition = "TEXT")
     private List<String> imageUrls;
 
+    @Column(name = "done_by")
+    private String doneBy;
+
     private String videoLink;
 
     @CreationTimestamp

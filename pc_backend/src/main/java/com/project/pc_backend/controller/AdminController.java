@@ -7,6 +7,7 @@ import com.project.pc_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -27,14 +28,21 @@ public class AdminController {
         return userService.register(userDto);
     }
 
+    @PostMapping("/register-admin")
+    public ResponseEntity<?> registerAdmin(@RequestBody UserDto userDto, Authentication authentication){
+        String createdBy = authentication != null ? authentication.getName() : null;
+        return userService.register(userDto, createdBy);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto){
         return userService.login(loginDto);
     }
 
     @PostMapping("/add-education")
-    public ApiResponse<?> addEducationTimeline(@RequestBody EducationTimelineRequest req){
-        return appService.addEducationTimeline(req);
+    public ApiResponse<?> addEducationTimeline(@RequestBody EducationTimelineRequest req, Authentication authentication){
+        String doneBy = authentication != null ? authentication.getName() : null;
+        return appService.addEducationTimeline(req, doneBy);
     }
 
     @DeleteMapping("/delete-education/{id}")
@@ -43,8 +51,9 @@ public class AdminController {
     }
 
     @PostMapping("/add-job")
-    public ApiResponse<?> addJobTimeline(@RequestBody JobTimelineRequest req){
-        return appService.addJobTimeline(req);
+    public ApiResponse<?> addJobTimeline(@RequestBody JobTimelineRequest req, Authentication authentication){
+        String doneBy = authentication != null ? authentication.getName() : null;
+        return appService.addJobTimeline(req, doneBy);
     }
 
     @DeleteMapping("/delete-job/{id}")
@@ -64,9 +73,11 @@ public class AdminController {
 
     @PostMapping(value = "/add-events", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<?>> createEvent(
-            @ModelAttribute CreateEventRequest req
+            @ModelAttribute CreateEventRequest req,
+            Authentication authentication
     ) {
-        ApiResponse<?> response = appService.createEvent(req);
+        String doneBy = authentication != null ? authentication.getName() : null;
+        ApiResponse<?> response = appService.createEvent(req, doneBy);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 

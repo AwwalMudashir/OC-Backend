@@ -152,6 +152,7 @@ public class AppService {
             donation.setReference(body.getData().getReference());
             donation.setName(name);
             donation.setEmail(body.getData().getCustomer().getEmail());
+            donation.setDoneBy("system");
 
             BigDecimal amount = BigDecimal.valueOf(body.getData().getAmount() / 100.0);
             donation.setAmount(amount);
@@ -183,12 +184,13 @@ public class AppService {
         }
     }
 
-    public ApiResponse<?> addEducationTimeline(EducationTimelineRequest req) {
+    public ApiResponse<?> addEducationTimeline(EducationTimelineRequest req, String doneBy) {
         try{
             EducationTimeline obj = new EducationTimeline();
             obj.setQualification(req.getQualification());
             obj.setPeriod(req.getStartYear() + " - " + req.getEndYear());
             obj.setTitle(req.getTitle());
+            obj.setDoneBy(doneBy);
 
             return ApiResponse.success(200,educationTimelineRepo.save(obj),"Added EducationTimeline Successfully");
         } catch (Exception e){
@@ -196,11 +198,12 @@ public class AppService {
         }
     }
 
-    public ApiResponse<?> addJobTimeline(JobTimelineRequest req) {
+    public ApiResponse<?> addJobTimeline(JobTimelineRequest req, String doneBy) {
         try{
             JobTimeline obj = new JobTimeline();
             obj.setDesc(req.getDesc());
             obj.setTitle(req.getTitle());
+            obj.setDoneBy(doneBy);
 
             return ApiResponse.success(200,jobTimelineRepo.save(obj),"Added Job Timeline successfully !");
         } catch (Exception e){
@@ -248,7 +251,7 @@ public class AppService {
         }
     }
 
-    public ApiResponse<?> createEvent(CreateEventRequest req) {
+    public ApiResponse<?> createEvent(CreateEventRequest req, String doneBy) {
         List<Path> storedFiles = new ArrayList<>();
 
         try{
@@ -281,6 +284,7 @@ public class AppService {
             obj.setEventDate(req.getEventDate());
             obj.setImageUrls(imageUrls);
             obj.setVideoLink(req.getVideoLink());
+            obj.setDoneBy(doneBy);
 
             return ApiResponse.created(eventRepo.save(obj),"Event created successfully");
         } catch (IllegalArgumentException e) {

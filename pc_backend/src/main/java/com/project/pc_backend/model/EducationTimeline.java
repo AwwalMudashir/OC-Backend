@@ -1,9 +1,6 @@
 package com.project.pc_backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,4 +17,7 @@ public class EducationTimeline {
     private String period;
     private String title;
     private String qualification;
+
+    @Column(name = "done_by")
+    private String doneBy;
 }

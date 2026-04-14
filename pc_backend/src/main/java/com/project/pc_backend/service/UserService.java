@@ -49,6 +49,10 @@ public class UserService {
     }
 
     public ResponseEntity<?> register(UserDto userDto) {
+        return register(userDto, userDto.getUsername());
+    }
+
+    public ResponseEntity<?> register(UserDto userDto, String createdBy) {
         String email = userDto.getEmail() == null ? null : userDto.getEmail().trim().toLowerCase();
 
         if (email == null || email.isBlank()) {
@@ -63,6 +67,7 @@ public class UserService {
         user.setEmail(email);
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setDoneBy(resolveCreatorName(createdBy));
 
         try {
             EmailDetails emailDetails = new EmailDetails();
@@ -77,6 +82,19 @@ public class UserService {
             // possibly another request inserted same email concurrently
             return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private String resolveCreatorName(String creatorIdentity) {
+        if (creatorIdentity == null || creatorIdentity.isBlank()) {
+            return null;
+        }
+
+        if (creatorIdentity.contains("@")) {
+            User creator = userRepo.findByEmail(creatorIdentity);
+            return creator != null && creator.getUsername() != null ? creator.getUsername() : creatorIdentity;
+        }
+
+        return creatorIdentity;
     }
 
     public ResponseEntity<?> login(LoginDto request){
