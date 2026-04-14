@@ -2,6 +2,7 @@ package com.project.pc_backend.config;
 
 
 import com.project.pc_backend.filter.JwtAuthenticationFilter;
+import com.project.pc_backend.filter.RequestResponseLoggingFilter;
 import com.project.pc_backend.service.UserDataDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,12 +32,15 @@ import java.util.List;
 public class AppConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RequestResponseLoggingFilter requestResponseLoggingFilter;
 
     @Value("${app.allowed.origins:http://localhost:3000}")
     private String allowedOrigins;
 
-    public AppConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public AppConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                     RequestResponseLoggingFilter requestResponseLoggingFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.requestResponseLoggingFilter = requestResponseLoggingFilter;
     }
 
     @Bean
@@ -60,6 +64,7 @@ public class AppConfig {
                 .authenticationProvider(authenticationProvider)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> {})
+                .addFilterBefore(requestResponseLoggingFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {

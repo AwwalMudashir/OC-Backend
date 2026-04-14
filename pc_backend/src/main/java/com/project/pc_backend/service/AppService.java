@@ -1,14 +1,8 @@
 package com.project.pc_backend.service;
 
 import com.project.pc_backend.dto.*;
-import com.project.pc_backend.model.Donation;
-import com.project.pc_backend.model.EducationTimeline;
-import com.project.pc_backend.model.Event;
-import com.project.pc_backend.model.JobTimeline;
-import com.project.pc_backend.repository.DonationRepository;
-import com.project.pc_backend.repository.EducationTimelineRepo;
-import com.project.pc_backend.repository.EventRepository;
-import com.project.pc_backend.repository.JobTimelineRepo;
+import com.project.pc_backend.model.*;
+import com.project.pc_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -69,6 +63,10 @@ public class AppService {
 
     @Autowired
     private JobTimelineRepo jobTimelineRepo;
+
+    @Autowired
+    private UserRepository userRepository;
+
 
     @Autowired
     private EventRepository eventRepo;
@@ -399,6 +397,15 @@ public class AppService {
         try{
             List<Event> history = eventRepo.findAll();
             return ApiResponse.success(200,history,"Event History Response");
+        } catch (Exception e){
+            return ApiResponse.error("An Error has Occurred !",400);
+        }
+    }
+
+    public ApiResponse<?> getAllAdmins(UserDto userDto, String createdBy) {
+        try{
+            List<User> admins = userRepository.findAll();
+            return ApiResponse.success(200,admins,"All Admins Response");
         } catch (Exception e){
             return ApiResponse.error("An Error has Occurred !",400);
         }

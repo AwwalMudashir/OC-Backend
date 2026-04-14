@@ -34,6 +34,13 @@ public class AdminController {
         return userService.register(userDto, createdBy);
     }
 
+    @GetMapping("/all-admins")
+    public ApiResponse<?> allAdmins(@RequestBody UserDto userDto, Authentication authentication){
+        String createdBy = authentication != null ? authentication.getName() : null;
+        return appService.getAllAdmins(userDto, createdBy);
+    }
+
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto){
         return userService.login(loginDto);
