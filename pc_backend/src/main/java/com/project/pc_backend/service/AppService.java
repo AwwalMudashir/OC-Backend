@@ -97,7 +97,7 @@ public class AppService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(secret_key); // sk_test_xxx
+            headers.setBearerAuth(secret_key);
 
             PayStackRequest payStackRequest = new PayStackRequest();
             payStackRequest.setEmail(donationRequest.getEmail());

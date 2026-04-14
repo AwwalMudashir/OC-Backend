@@ -68,18 +68,18 @@ Example run:
 
 ```bash
 docker run --rm -p 8080:8080 \
-  -e SPRING_DATASOURCE_URL="jdbc:postgresql://host:5432/db_name" \
+  -e SPRING_DATASOURCE_URL="jdbc:postgresql://host:5432/oroye_campaign_db" \
   -e SPRING_DATASOURCE_DRIVER_CLASS_NAME="org.postgresql.Driver" \
-  -e SPRING_DATASOURCE_USERNAME="db_user" \
-  -e SPRING_DATASOURCE_PASSWORD="db_password" \
+  -e SPRING_DATASOURCE_USERNAME="oroye_campaign_db_user" \
+  -e SPRING_DATASOURCE_PASSWORD="l8o7PhtS6xfb9G62U4SJ2lsAh1PAr4lB" \
   -e SPRING_JPA_HIBERNATE_DIALECT="org.hibernate.dialect.PostgreSQLDialect" \
-  -e SPRING_MAIL_USERNAME="your-email@example.com" \
-  -e SPRING_MAIL_PASSWORD="your-password" \
-  -e APP_EMAIL="your-email@example.com" \
-  -e CALLBACK_URL="https://your-frontend.example.com/payment-success" \
+  -e SPRING_MAIL_USERNAME="oroye.campaign@gmail.com" \
+  -e SPRING_MAIL_PASSWORD="wrqisdttcpekahaf" \
+  -e APP_EMAIL="oroye.campaign@gmail.com" \
+  -e CALLBACK_URL="https://oc-frontend-plum.vercel.app/payment-success" \
   -e PAYSTACK_SECRET_KEY="your-paystack-secret" \
-  -e APP_ALLOWED_ORIGINS="https://your-frontend.example.com,http://localhost:3000" \
-  -e JWT_SECRET="replace-this-with-a-long-random-secret" \
+  -e APP_ALLOWED_ORIGINS="https://oc-frontend-plum.vercel.app,http://localhost:3000" \
+  -e JWT_SECRET="MuhammadOrayeCampaign@jWtSeCriiiT2027" \
   -e APP_UPLOAD_DIR="/data/uploads" \
   pc-backend
 ```
