@@ -78,12 +78,15 @@ public class AppService {
             emailDetails.setRecipient(app_email);
             emailDetails.setSender(contactDetails.getEmail());
             emailDetails.setSubject("Contact Email From " + contactDetails.getName() + " - via Website");
-            emailDetails.setMessageBody("The Below is a message");
+            emailDetails.setMessageBody("Name: " + contactDetails.getName() + "\n" +
+                    "Email: " + contactDetails.getEmail() + "\n\n" +
+                    contactDetails.getMessage());
 
             emailService.sendMail(emailDetails);
 
             return ApiResponse.success(200,"","Thanks for contacting us !");
         } catch (Exception e){
+            e.printStackTrace();
             return ApiResponse.error("An Error has Occured !",400);
         }
 
