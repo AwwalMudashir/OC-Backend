@@ -31,6 +31,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class AppConfig {
 
+    // App Configuration
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestResponseLoggingFilter requestResponseLoggingFilter;
 
