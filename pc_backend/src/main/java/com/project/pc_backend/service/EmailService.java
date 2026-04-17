@@ -18,7 +18,7 @@ public class EmailService {
 
     public void sendMail(EmailDetails emailDetails){
         SimpleMailMessage smm = new SimpleMailMessage();
-        smm.setFrom(emailDetails.getSender());
+        smm.setFrom(mailUsername);
         smm.setTo(emailDetails.getRecipient());
         smm.setReplyTo(emailDetails.getSender());
         smm.setText(emailDetails.getMessageBody());
