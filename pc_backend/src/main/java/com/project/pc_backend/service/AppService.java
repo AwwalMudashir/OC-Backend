@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -66,6 +67,9 @@ public class AppService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
 
     @Autowired
@@ -253,29 +257,22 @@ public class AppService {
     }
 
     public ApiResponse<?> createEvent(CreateEventRequest req, String doneBy) {
-        List<Path> storedFiles = new ArrayList<>();
 
         try{
             validateEventImages(req.getImages());
 
-            Path uploadPath = Paths.get(uploadDir, "events").toAbsolutePath().normalize();
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+//            Path uploadPath = Paths.get(uploadDir, "events").toAbsolutePath().normalize();
+//            if (!Files.exists(uploadPath)) {
+//                Files.createDirectories(uploadPath);
+//            }
 
             List<String> imageUrls = new ArrayList<>();
+            List<String> imagePublicIds = new ArrayList<>();
 
             for (MultipartFile image : req.getImages()) {
-                String extension = getValidatedExtension(image);
-                String fileName = UUID.randomUUID() + extension;
-                Path filePath = uploadPath.resolve(fileName);
-
-                try (var inputStream = image.getInputStream()) {
-                    Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-                }
-
-                storedFiles.add(filePath);
-                imageUrls.add("/uploads/events/" + fileName);
+                Map<String, String> uploadResult = cloudinaryService.uploadImage(image);
+                imageUrls.add(uploadResult.get("url"));
+                imagePublicIds.add(uploadResult.get("publicId"));
             }
 
             Event obj = new Event();
@@ -285,16 +282,14 @@ public class AppService {
             obj.setEventDate(req.getEventDate());
             obj.setImageUrls(imageUrls);
             obj.setVideoLink(req.getVideoLink());
+            obj.setImagePublicIds(imagePublicIds);
             obj.setDoneBy(doneBy);
 
             return ApiResponse.created(eventRepo.save(obj),"Event created successfully");
         } catch (IllegalArgumentException e) {
             return ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
-        } catch (IOException e){
-            deleteStoredFiles(storedFiles);
-            return ApiResponse.error("Unable to store event images right now. Please try again.",HttpStatus.INTERNAL_SERVER_ERROR.value());
         } catch (Exception e){
-            deleteStoredFiles(storedFiles);
+//            deleteStoredFiles(storedFiles);
             return ApiResponse.error("Unable to create event right now. Please try again.",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
@@ -357,14 +352,28 @@ public class AppService {
                 return ApiResponse.error("Event not found.", HttpStatus.NOT_FOUND.value());
             }
 
+            deleteCloudinaryImages(event);
             deleteEventImages(event);
             eventRepo.delete(event);
 
             return ApiResponse.success(200,"Event deleted successfully","Deleted Event successfully !");
         } catch (IOException e){
-            return ApiResponse.error("Unable to delete the event images right now. Please try again.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ApiResponse.error("Unable to delete the event images right now. Please try again.",HttpStatus.INTERNAL_SERVER_ERROR.value());
         } catch (Exception e){
-            return ApiResponse.error("Unable to delete event right now. Please try again.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ApiResponse.error("Unable to delete event right now. Please try again.",HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
+    private void deleteCloudinaryImages(Event event) {
+        if (event.getImagePublicIds() == null || event.getImagePublicIds().isEmpty()) {
+            return;
+        }
+
+        for (String publicId : event.getImagePublicIds()) {
+            if (publicId == null || publicId.isBlank()) {
+                continue;
+            }
+            cloudinaryService.deleteImage(publicId);
         }
     }
 

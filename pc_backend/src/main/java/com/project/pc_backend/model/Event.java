@@ -33,6 +33,10 @@ public class Event {
     @Column(name = "image_url", columnDefinition = "TEXT")
     private List<String> imageUrls;
 
+    @Convert(converter = StringListJsonConverter.class)
+    @Column(name = "image_public_id", columnDefinition = "TEXT")
+    private List<String> imagePublicIds;
+
     @Column(name = "done_by")
     private String doneBy;
 
