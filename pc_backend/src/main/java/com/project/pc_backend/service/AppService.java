@@ -42,9 +42,6 @@ public class AppService {
     private String app_email;
 
     @Autowired
-    private EmailService emailService;
-
-    @Autowired
     private RestTemplate restTemplate;
 
     @Value("${callback_url}")
@@ -71,22 +68,29 @@ public class AppService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private EmailTemplateService emailTemplateService;
+
+    @Autowired
+    private ResendEmailService resendEmailService;
+
 
     @Autowired
     private EventRepository eventRepo;
 
     public ApiResponse<?> contact(ContactDetails contactDetails) {
         try{
-            EmailDetails emailDetails = new EmailDetails();
+            String html = emailTemplateService.contactTemplate(
+                    contactDetails.getName(),
+                    contactDetails.getEmail(),
+                    contactDetails.getMessage()
+            );
 
-            emailDetails.setRecipient(app_email);
-            emailDetails.setSender(contactDetails.getEmail());
-            emailDetails.setSubject("Contact Email From " + contactDetails.getName() + " - via Website");
-            emailDetails.setMessageBody("Name: " + contactDetails.getName() + "\n" +
-                    "Email: " + contactDetails.getEmail() + "\n\n" +
-                    contactDetails.getMessage());
-
-            emailService.sendMail(emailDetails);
+            resendEmailService.sendEmail(
+                    app_email,
+                    "New Contact Message - Website",
+                    html
+            );
 
             return ApiResponse.success(200,"","Thanks for contacting us !");
         } catch (Exception e){

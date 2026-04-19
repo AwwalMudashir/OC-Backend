@@ -32,20 +32,23 @@ public class UserService {
 
     private final AuthenticationManager authenticationManager;
 
-    private final EmailService emailService;
+    private final EmailTemplateService emailTemplateService;
+
+    private final ResendEmailService resendEmailService;
 
     public UserService(
             UserRepository userRepo,
             PasswordEncoder passwordEncoder,
             JwtUtil jwtService,
             AuthenticationManager authenticationManager,
-            EmailService emailService
+            EmailTemplateService emailService, ResendEmailService resendEmailService
     ) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
-        this.emailService = emailService;
+        this.emailTemplateService = emailService;
+        this.resendEmailService = resendEmailService;
     }
 
     public ResponseEntity<?> register(UserDto userDto) {
@@ -70,13 +73,15 @@ public class UserService {
         user.setDoneBy(resolveCreatorName(createdBy));
 
         try {
-            EmailDetails emailDetails = new EmailDetails();
-            emailDetails.setSender(app_email);
-            emailDetails.setSubject("Welcome Admin");
-            emailDetails.setRecipient(user.getEmail());
-            emailDetails.setMessageBody("Welcome to The Oroye Campaign " + user.getUsername() + ",\nYou have Admin Capabilities now !, You can add jobs,education timelines,events and so on dynamically. Just log in to the Admin Dashboard by adding this (/admin) to the base of the website. This prompts you to login, enter your credentials and start working.\nRemember to not share your credentials with any other personnel who doesn't need this access as this will be violating The Oroye Campaign's Data and legal actions can be taken against you.\n\nWelcome Once Again !!,\nThe Oroye Campaign");
+            String html = emailTemplateService.adminWelcomeTemplate(user.getUsername());
 
-            emailService.sendMail(emailDetails);
+            resendEmailService.sendEmail(
+                    user.getEmail(),
+                    "Welcome to The Oroye Campaign \" + user.getUsername() + \",\\nYou have Admin Capabilities now !, You can add jobs,education timelines,events and so on dynamically. Just log in to the Admin Dashboard by adding this (/admin) to the base of the website. This prompts you to login, enter your credentials and start working.\\nRemember to not share your credentials with any other personnel who doesn't need this access as this will be violating The Oroye Campaign's Data and legal actions can be taken against you.\\n\\nWelcome Once Again !!,\\nThe Oroye Campaign",
+                    html
+            );
+
+
             return new ResponseEntity<>(userRepo.save(user), HttpStatus.OK);
         } catch (DataIntegrityViolationException dive) {
             // possibly another request inserted same email concurrently
