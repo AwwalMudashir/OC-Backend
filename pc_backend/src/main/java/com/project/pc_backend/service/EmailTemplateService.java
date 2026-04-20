@@ -1,40 +1,35 @@
 package com.project.pc_backend.service;
 
-import com.project.pc_backend.dto.EmailDetails;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.mail.javamail.JavaMailSender;
 
 @Service
 public class EmailTemplateService {
 
-    @Autowired
-    JavaMailSender javaMailSender;
-
-    @Value("${spring.mail.username}")
-    private String mailUsername;
-
     public String contactTemplate(String name, String email, String message) {
         return """
-    <div style="font-family: Arial; padding:20px; background:#f9fafb;">
-        <div style="max-width:600px; margin:auto; background:white; padding:20px; border-radius:10px;">
-            
-            <h2 style="color:#2f9e44;">📩 New Contact Message</h2>
+    <div style="font-family: Arial, sans-serif; padding:24px; background:#f2f4f8; color:#0f172a;">
+        <div style="max-width:600px; margin:auto; background:#ffffff; padding:24px; border-radius:18px; box-shadow:0 18px 40px rgba(15, 23, 42, 0.08);">
+            <div style="margin-bottom:24px;">
+                <p style="margin:0; color:#334155; font-size:14px; letter-spacing:0.03em; text-transform:uppercase;">Campaign contact message</p>
+                <h1 style="margin:8px 0 0; font-size:24px; color:#0f172a;">New message from your website</h1>
+            </div>
 
-            <p><strong>Name:</strong> %s</p>
-            <p><strong>Email:</strong> %s</p>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:18px; margin-bottom:20px;">
+                <p style="margin:0 0 12px; font-size:16px; color:#334155;"><strong>Name:</strong> %s</p>
+                <p style="margin:0 0 12px; font-size:16px; color:#334155;"><strong>Email:</strong> %s</p>
+            </div>
 
-            <hr style="margin:20px 0;"/>
+            <div style="padding:18px 20px; border-radius:12px; background:#eef2ff; border:1px solid #c7d2fe;">
+                <p style="margin:0 0 12px; font-size:16px; color:#0f172a;"><strong>Message</strong></p>
+                <p style="margin:0; font-size:15px; line-height:1.7; color:#334155;">%s</p>
+            </div>
 
-            <p style="line-height:1.6;">%s</p>
-
+            <div style="margin-top:24px; font-size:13px; color:#64748b;">
+                <p style="margin:0;">Reply to the visitor at <a href=\"mailto:%s\" style=\"color:#2563eb; text-decoration:none;\">%s</a>.</p>
+            </div>
         </div>
     </div>
-    """.formatted(name, email, message);
+    """.formatted(name, email, message, email, email);
     }
 
     public String adminWelcomeTemplate(String username) {

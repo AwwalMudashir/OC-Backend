@@ -74,6 +74,7 @@ public class UserService {
 
         try {
             String html = emailTemplateService.adminWelcomeTemplate(user.getUsername());
+            System.out.println("[Email] Admin welcome email send start: to=" + user.getEmail() + ", from=" + app_email);
 
             resendEmailService.sendEmail(
                     user.getEmail(),
@@ -81,7 +82,7 @@ public class UserService {
                     html
             );
 
-
+            System.out.println("[Email] Admin welcome email send complete");
             return new ResponseEntity<>(userRepo.save(user), HttpStatus.OK);
         } catch (DataIntegrityViolationException dive) {
             // possibly another request inserted same email concurrently

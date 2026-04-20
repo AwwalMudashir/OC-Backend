@@ -86,15 +86,19 @@ public class AppService {
                     contactDetails.getMessage()
             );
 
-            resendEmailService.sendEmail(
+            System.out.println("[Email] Contact email send start: to=" + app_email + ", from=" + contactDetails.getEmail());
+            resendEmailService.sendContactEmail(
                     app_email,
+                    contactDetails.getEmail(),
                     "New Contact Message - Website",
                     html
             );
+            System.out.println("[Email] Contact email send complete");
 
             return ApiResponse.success(200,"","Thanks for contacting us !");
         } catch (Exception e){
             e.printStackTrace();
+            System.out.println("[Email] Contact email send failed: " + e.getMessage());
             return ApiResponse.error("An Error has Occured !",400);
         }
 
