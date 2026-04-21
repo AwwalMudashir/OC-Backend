@@ -24,6 +24,7 @@ public class AppController {
 
     @PostMapping("/contact")
     public ApiResponse<?> contact(@RequestBody ContactDetails contactDetails){
+        System.out.println("[Controller] /contact endpoint hit with body: " + contactDetails);
         return appService.contact(contactDetails);
     }
 

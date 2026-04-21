@@ -80,26 +80,52 @@ public class AppService {
 
     public ApiResponse<?> contact(ContactDetails contactDetails) {
         try{
+            System.out.println("[Contact] Received request: name=" + contactDetails.getName() + 
+                    ", email=" + contactDetails.getEmail() + 
+                    ", message=" + contactDetails.getMessage());
+
+            if (contactDetails.getName() == null || contactDetails.getName().isBlank()) {
+                System.out.println("[Contact] Name is blank");
+                return ApiResponse.error("Name is required", 400);
+            }
+
+            if (contactDetails.getEmail() == null || contactDetails.getEmail().isBlank()) {
+                System.out.println("[Contact] Email is blank");
+                return ApiResponse.error("Email is required", 400);
+            }
+
+            if (contactDetails.getMessage() == null || contactDetails.getMessage().isBlank()) {
+                System.out.println("[Contact] Message is blank");
+                return ApiResponse.error("Message is required", 400);
+            }
+
+            if (app_email == null || app_email.isBlank()) {
+                System.out.println("[Contact] app_email is not configured");
+                return ApiResponse.error("Email service not configured", 500);
+            }
+
+            System.out.println("[Contact] Generating email template...");
             String html = emailTemplateService.contactTemplate(
                     contactDetails.getName(),
                     contactDetails.getEmail(),
                     contactDetails.getMessage()
             );
+            System.out.println("[Contact] Email template generated, length=" + html.length());
 
-            System.out.println("[Email] Contact email send start: to=" + app_email + ", from=" + contactDetails.getEmail());
+            System.out.println("[Contact] Sending email: to=" + app_email + ", replyTo=" + contactDetails.getEmail());
             resendEmailService.sendContactEmail(
                     app_email,
                     contactDetails.getEmail(),
                     "New Contact Message - Website",
                     html
             );
-            System.out.println("[Email] Contact email send complete");
+            System.out.println("[Contact] Email send completed successfully");
 
             return ApiResponse.success(200,"","Thanks for contacting us !");
         } catch (Exception e){
+            System.out.println("[Contact] Exception occurred: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             e.printStackTrace();
-            System.out.println("[Email] Contact email send failed: " + e.getMessage());
-            return ApiResponse.error("An Error has Occured !",400);
+            return ApiResponse.error("An Error has Occurred: " + e.getMessage(),400);
         }
 
     }
