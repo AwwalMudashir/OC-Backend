@@ -38,10 +38,10 @@ public class AppController {
         return appService.verifyPayment(reference,name);
     }
 
-//    @GetMapping("/event-history")
-//    public ApiResponse<?> getEventHistory(){
-//        return appService.getEventHistory();
-//    }
+    @GetMapping("/event-history")
+    public ApiResponse<?> getEventHistory(){
+        return appService.getEventHistory();
+    }
 
     @GetMapping("/education-history")
     public ApiResponse<?> getEducationHistory(){
