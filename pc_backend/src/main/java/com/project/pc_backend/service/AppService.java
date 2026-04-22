@@ -439,14 +439,14 @@ public class AppService {
         }
     }
 
-    public ApiResponse<?> getEventHistory() {
-        try{
-            List<Event> history = eventRepo.findAll();
-            return ApiResponse.success(200,history,"Event History Response");
-        } catch (Exception e){
-            return ApiResponse.error("An Error has Occurred !",400);
-        }
-    }
+//    public ApiResponse<?> getEventHistory() {
+//        try{
+//            List<Event> history = eventRepo.findAll();
+//            return ApiResponse.success(200,history,"Event History Response");
+//        } catch (Exception e){
+//            return ApiResponse.error("An Error has Occurred !",400);
+//        }
+//    }
 
     public ApiResponse<?> getAllAdmins(UserDto userDto, String createdBy) {
         try{
