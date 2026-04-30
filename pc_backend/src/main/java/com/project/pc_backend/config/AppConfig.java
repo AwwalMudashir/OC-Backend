@@ -60,7 +60,7 @@ public class AppConfig {
                 .csrf(custom -> custom.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(registry -> registry
-                .requestMatchers("/api/donate","/api/contact","/api/verify-donation", "/api/admin/login","/api/education-history","/api/job-history","/api/event-history", "/uploads/**").permitAll()
+                .requestMatchers("/api/donate","/api/contact","/api/verify-donation", "/api/admin/login","/api/education-history","/api/job-history","/api/event-history", "/api/health", "/uploads/**").permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
