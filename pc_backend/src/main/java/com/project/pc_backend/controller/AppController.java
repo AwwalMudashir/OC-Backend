@@ -1,30 +1,24 @@
 package com.project.pc_backend.controller;
 
 import com.project.pc_backend.dto.*;
-import com.project.pc_backend.model.Donation;
-import com.project.pc_backend.model.EducationTimeline;
 import com.project.pc_backend.service.AppService;
-import com.project.pc_backend.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class AppController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+
     @Autowired
     private AppService appService;
 
-    @Autowired
-    private UserService userService;
-
     @PostMapping("/contact")
-    public ApiResponse<?> contact(@RequestBody ContactDetails contactDetails){
-        System.out.println("[Controller] /contact endpoint hit with body: " + contactDetails);
+    public ApiResponse<?> contact(@RequestBody @jakarta.validation.Valid ContactDetails contactDetails){
+        logger.info("[Controller] /contact endpoint hit");
         return appService.contact(contactDetails);
     }
 

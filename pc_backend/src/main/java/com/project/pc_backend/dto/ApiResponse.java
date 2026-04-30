@@ -1,6 +1,5 @@
 package com.project.pc_backend.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,11 +20,17 @@ public class ApiResponse<T> {
         return new ApiResponse<>(statusCode, message, data);
     }
 
+    // Primary success signature: (statusCode, data, message)
+
     public static <T> ApiResponse<T> created(T data, String message) {
         return new ApiResponse<>(201, message, data);
     }
 
     public static <T> ApiResponse<T> error(String message, int statusCode) {
         return new ApiResponse<>(statusCode, message, null);
+    }
+
+    public static <T> ApiResponse<T> error(String message) {
+        return error(message, 400);
     }
 }

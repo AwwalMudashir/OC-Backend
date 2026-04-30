@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -17,18 +19,20 @@ import java.util.Enumeration;
 @Component
 public class RequestResponseLoggingFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(RequestResponseLoggingFilter.class);
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request,100);
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
-        System.out.println(formatRequest(wrappedRequest));
+        logger.debug(formatRequest(wrappedRequest));
 
         try {
             filterChain.doFilter(wrappedRequest, wrappedResponse);
         } finally {
-            System.out.println(formatResponse(wrappedResponse));
+            logger.debug(formatResponse(wrappedResponse));
             wrappedResponse.copyBodyToResponse();
         }
     }
@@ -47,13 +51,22 @@ public class RequestResponseLoggingFilter extends OncePerRequestFilter {
         if (headerNames != null) {
             while (headerNames.hasMoreElements()) {
                 String name = headerNames.nextElement();
-                sb.append("  ").append(name).append(": ").append(request.getHeader(name)).append('\n');
+                String value = request.getHeader(name);
+                if (name.equalsIgnoreCase("authorization") || name.toLowerCase().contains("cookie")) {
+                    value = "***REDACTED***";
+                }
+                sb.append("  ").append(name).append(": ").append(value).append('\n');
             }
         }
 
         String body = getRequestBody(request);
         if (StringUtils.hasText(body)) {
-            sb.append("Body:\n").append(body).append('\n');
+            String lower = body.toLowerCase();
+            if (lower.contains("password") || lower.contains("token") || lower.contains("authorization")) {
+                sb.append("Body:\n[REDACTED]\n");
+            } else {
+                sb.append("Body:\n").append(body).append('\n');
+            }
         }
 
         sb.append("=== END REQUEST ===");

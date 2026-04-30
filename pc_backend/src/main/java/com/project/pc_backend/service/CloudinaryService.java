@@ -18,15 +18,16 @@ public class CloudinaryService {
 
     public Map<String, String> uploadImage(MultipartFile file) {
         try {
-            Map uploadResult = cloudinary.uploader().upload(
+                @SuppressWarnings("unchecked")
+                Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.emptyMap()
-            );
+                );
 
-            return Map.of(
+                return Map.of(
                     "url", uploadResult.get("secure_url").toString(),
                     "publicId", uploadResult.get("public_id").toString()
-            );
+                );
 
         } catch (Exception e) {
             throw new RuntimeException("Image upload failed", e);

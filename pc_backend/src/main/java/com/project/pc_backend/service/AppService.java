@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,15 +25,16 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
+ 
 
 @Service
 public class AppService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AppService.class);
 
     private static final int MAX_EVENT_IMAGES = 10;
     private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of(
@@ -80,52 +83,49 @@ public class AppService {
 
     public ApiResponse<?> contact(ContactDetails contactDetails) {
         try{
-            System.out.println("[Contact] Received request: name=" + contactDetails.getName() + 
-                    ", email=" + contactDetails.getEmail() + 
-                    ", message=" + contactDetails.getMessage());
+            logger.info("[Contact] Received request: name={} email=***REDACTED***", contactDetails.getName());
 
             if (contactDetails.getName() == null || contactDetails.getName().isBlank()) {
-                System.out.println("[Contact] Name is blank");
+                logger.warn("[Contact] Name is blank");
                 return ApiResponse.error("Name is required", 400);
             }
 
             if (contactDetails.getEmail() == null || contactDetails.getEmail().isBlank()) {
-                System.out.println("[Contact] Email is blank");
+                logger.warn("[Contact] Email is blank");
                 return ApiResponse.error("Email is required", 400);
             }
 
             if (contactDetails.getMessage() == null || contactDetails.getMessage().isBlank()) {
-                System.out.println("[Contact] Message is blank");
+                logger.warn("[Contact] Message is blank");
                 return ApiResponse.error("Message is required", 400);
             }
 
             if (app_email == null || app_email.isBlank()) {
-                System.out.println("[Contact] app_email is not configured");
+                logger.error("[Contact] app_email is not configured");
                 return ApiResponse.error("Email service not configured", 500);
             }
 
-            System.out.println("[Contact] Generating email template...");
+            logger.debug("[Contact] Generating email template...");
             String html = emailTemplateService.contactTemplate(
                     contactDetails.getName(),
                     contactDetails.getEmail(),
                     contactDetails.getMessage()
             );
-            System.out.println("[Contact] Email template generated, length=" + html.length());
+            logger.debug("[Contact] Email template generated, length={}", html.length());
 
-            System.out.println("[Contact] Sending email: to=" + app_email + ", replyTo=" + contactDetails.getEmail());
+            logger.info("[Contact] Sending email to configured app address (reply-to preserved)");
             resendEmailService.sendContactEmail(
                     app_email,
                     contactDetails.getEmail(),
                     "New Contact Message - Website",
                     html
             );
-            System.out.println("[Contact] Email send completed successfully");
+            logger.info("[Contact] Email send completed successfully");
 
-            return ApiResponse.success(200,"","Thanks for contacting us !");
+            return ApiResponse.<String>success(200,"","Thanks for contacting us !");
         } catch (Exception e){
-            System.out.println("[Contact] Exception occurred: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-            e.printStackTrace();
-            return ApiResponse.error("An Error has Occurred: " + e.getMessage(),400);
+            logger.error("[Contact] Exception occurred while sending contact email", e);
+            return ApiResponse.error("Unable to send contact message at this time",500);
         }
 
     }
@@ -168,7 +168,7 @@ public class AppService {
     public ApiResponse<String> verifyPayment(String reference,String name) {
 
         if (donationRepository.existsByReference(reference)) {
-            return ApiResponse.success(200, "Already Verified","Done");
+            return ApiResponse.<String>success(200, "Already Verified","Done");
         }
 
         String url = "https://api.paystack.co/transaction/verify/" + reference;
@@ -207,7 +207,7 @@ public class AppService {
             donationRepository.save(donation);
 
             if (donation.getStatus() == DonationStatus.SUCCESS) {
-                return ApiResponse.success(200,"Payment verified and saved", "Success");
+                return ApiResponse.<String>success(200,"Payment verified and saved", "Success");
             }
         }
 
@@ -275,7 +275,7 @@ public class AppService {
     public ApiResponse<?> deleteEducationTimeline(Long id) {
         try{
             educationTimelineRepo.deleteById(id);
-            return ApiResponse.success(200,"Education Timeline deleted successfully","Deleted Education Timeline successfully !");
+            return ApiResponse.<String>success(200,"Education Timeline deleted successfully","Deleted Education Timeline successfully !");
         } catch (Exception e){
             return ApiResponse.error("An Error has Occured !",400);
         }
@@ -284,7 +284,7 @@ public class AppService {
     public ApiResponse<?> deleteJobTimeline(Long id) {
         try{
             jobTimelineRepo.deleteById(id);
-            return ApiResponse.success(200,"Job Timeline deleted successfully","Deleted Job Timeline successfully !");
+            return ApiResponse.<String>success(200,"Job Timeline deleted successfully","Deleted Job Timeline successfully !");
         } catch (Exception e){
             return ApiResponse.error("An Error has Occured !",400);
         }
@@ -390,7 +390,7 @@ public class AppService {
             deleteEventImages(event);
             eventRepo.delete(event);
 
-            return ApiResponse.success(200,"Event deleted successfully","Deleted Event successfully !");
+            return ApiResponse.<String>success(200,"Event deleted successfully","Deleted Event successfully !");
         } catch (IOException e){
             return ApiResponse.error("Unable to delete the event images right now. Please try again.",HttpStatus.INTERNAL_SERVER_ERROR.value());
         } catch (Exception e){

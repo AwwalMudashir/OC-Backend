@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 public class EmailTemplateService {
 
     public String contactTemplate(String name, String email, String message) {
+        String escName = escapeHtml(name);
+        String escEmail = escapeHtml(email);
+        String escMessage = escapeHtml(message).replace("\n", "<br/>");
+
         return """
     <div style="font-family: Arial, sans-serif; padding:24px; background:#f2f4f8; color:#0f172a;">
         <div style="max-width:600px; margin:auto; background:#ffffff; padding:24px; border-radius:18px; box-shadow:0 18px 40px rgba(15, 23, 42, 0.08);">
@@ -29,7 +33,16 @@ public class EmailTemplateService {
             </div>
         </div>
     </div>
-    """.formatted(name, email, message, email, email);
+    """.formatted(escName, escEmail, escMessage, escEmail, escEmail);
+    }
+
+    private String escapeHtml(String input) {
+        if (input == null) return "";
+        return input.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#x27;");
     }
 
     public String adminWelcomeTemplate(String username) {
@@ -67,23 +80,4 @@ public class EmailTemplateService {
 }
 
 
-/*
-
-try {
-            SimpleMailMessage smm = new SimpleMailMessage();
-            smm.setFrom(mailUsername);
-            smm.setTo(emailDetails.getRecipient());
-            smm.setReplyTo(emailDetails.getSender());
-            smm.setText(emailDetails.getMessageBody());
-            smm.setSubject(emailDetails.getSubject());
-
-            javaMailSender.send(smm);
-
-            System.out.println("EMAIL SENT SUCCESSFULLY");
-
-        } catch (Exception e) {
-            System.out.println("EMAIL FAILED:");
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
- */
+// Legacy JavaMail example removed to avoid printing to stdout. Use ResendEmailService instead.

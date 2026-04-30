@@ -1,6 +1,5 @@
 package com.project.pc_backend.service;
 
-import com.project.pc_backend.dto.EmailDetails;
 import com.project.pc_backend.dto.LoginDto;
 import com.project.pc_backend.dto.LoginResponse;
 import com.project.pc_backend.dto.UserDto;
@@ -17,9 +16,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepo;
 
@@ -74,7 +77,7 @@ public class UserService {
 
         try {
             String html = emailTemplateService.adminWelcomeTemplate(user.getUsername());
-            System.out.println("[Email] Admin welcome email send start: to=" + user.getEmail() + ", from=" + app_email);
+            logger.info("[Email] Admin welcome email send start: to={}", user.getEmail());
 
             resendEmailService.sendEmail(
                     user.getEmail(),
@@ -82,7 +85,7 @@ public class UserService {
                     html
             );
 
-            System.out.println("[Email] Admin welcome email send complete");
+            logger.info("[Email] Admin welcome email send complete");
             return new ResponseEntity<>(userRepo.save(user), HttpStatus.OK);
         } catch (DataIntegrityViolationException dive) {
             // possibly another request inserted same email concurrently
