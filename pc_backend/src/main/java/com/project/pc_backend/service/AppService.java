@@ -546,4 +546,40 @@ public class AppService {
             return ApiResponse.error("An Error has Occurred !",400);
         }
     }
+
+    public ApiResponse<?> getEventById(Long id) {
+        try{
+            if(!eventRepo.existsById(id)){
+                return ApiResponse.error("Event Id Does not Exist",404);
+            }
+            Event event = eventRepo.findById(id).get();
+            return ApiResponse.success(200,event,"Event Response");
+        } catch (Exception e){
+            return ApiResponse.error("An Error has Occurred !",400);
+        }
+    }
+
+    public ApiResponse<?> getEducationTimelineBy(Long id) {
+        try{
+            if(!educationTimelineRepo.existsById(id)){
+                return ApiResponse.error("Education Timeline Id Does not Exist",404);
+            }
+            EducationTimeline edu = educationTimelineRepo.findById(id).get();
+            return ApiResponse.success(200,edu,"Education Timeline Response");
+        } catch (Exception e){
+            return ApiResponse.error("An Error has Occurred !",400);
+        }
+    }
+
+    public ApiResponse<?> getJobTimelineBy(Long id) {
+        try{
+            if(!jobTimelineRepo.existsById(id)){
+                return ApiResponse.error("Job Timeline Id Does not Exist",404);
+            }
+            JobTimeline job = jobTimelineRepo.findById(id).get();
+            return ApiResponse.success(200,job,"Education Timeline Response");
+        } catch (Exception e){
+            return ApiResponse.error("An Error has Occurred !",400);
+        }
+    }
 }

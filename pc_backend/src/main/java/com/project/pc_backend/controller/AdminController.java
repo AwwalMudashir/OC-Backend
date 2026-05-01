@@ -93,4 +93,33 @@ public class AdminController {
         return appService.deleteEvent(id);
     }
 
+    @GetMapping("/event/{id}")
+    public ApiResponse<?> getEventById(@PathVariable Long id) {
+        return appService.getEventById(id);
+    }
+
+    @GetMapping("/education/{id}")
+    public ApiResponse<?> getEducationById(@PathVariable Long id) {
+        return appService.getEducationTimelineBy(id);
+    }
+
+    @GetMapping("/job/{id}")
+    public ApiResponse<?> getJobById(@PathVariable Long id) {
+        return appService.getJobTimelineBy(id);
+    }
+
+    @PutMapping("/event/{id}")
+    public ApiResponse<?> updateEvent(@PathVariable Long id, @ModelAttribute CreateEventRequest req, @RequestHeader(value = "X-User", required = false) String doneBy) {
+        return appService.updateEvent(id, req, doneBy);
+    }
+
+    @PutMapping("/education/{id}")
+    public ApiResponse<?> updateEducation(@PathVariable Long id, @RequestBody EducationTimelineRequest req, @RequestHeader(value = "X-User", required = false) String doneBy) {
+        return appService.updateEducationTimeline(id, req, doneBy);
+    }
+
+    @PutMapping("/job/{id}")
+    public ApiResponse<?> updateJob(@PathVariable Long id, @RequestBody JobTimelineRequest req, @RequestHeader(value = "X-User", required = false) String doneBy) {
+        return appService.updateJobTimeline(id, req, doneBy);
+    }
 }
