@@ -237,6 +237,30 @@ public class AppService {
         }
     }
 
+    public ApiResponse<?> updateEducationTimeline(Long id, EducationTimelineRequest req, String doneBy) {
+        try{
+            EducationTimeline existing = educationTimelineRepo.findById(id).orElse(null);
+            if (existing == null) {
+                return ApiResponse.error("Education timeline not found", HttpStatus.NOT_FOUND.value());
+            }
+
+            existing.setQualification(req.getQualification() != null ? req.getQualification() : existing.getQualification());
+            if (req.getStartYear() != null && req.getEndYear() != null) {
+                existing.setPeriod(req.getStartYear() + " - " + req.getEndYear());
+            } else if (req.getPeriod() != null) {
+                existing.setPeriod(req.getPeriod());
+            }
+            existing.setTitle(req.getTitle() != null ? req.getTitle() : existing.getTitle());
+            existing.setDoneBy(doneBy != null ? doneBy : existing.getDoneBy());
+
+            EducationTimeline saved = educationTimelineRepo.save(existing);
+            return ApiResponse.success(200, saved, "Education timeline updated successfully");
+        } catch (Exception e){
+            logger.error("Error updating education timeline", e);
+            return ApiResponse.error("Unable to update education timeline", 500);
+        }
+    }
+
     public ApiResponse<?> addJobTimeline(JobTimelineRequest req, String doneBy) {
         try{
             JobTimeline obj = new JobTimeline();
@@ -247,6 +271,25 @@ public class AppService {
             return ApiResponse.success(200,jobTimelineRepo.save(obj),"Added Job Timeline successfully !");
         } catch (Exception e){
             return ApiResponse.error("An Error has Occured !",400);
+        }
+    }
+
+    public ApiResponse<?> updateJobTimeline(Long id, JobTimelineRequest req, String doneBy) {
+        try{
+            JobTimeline existing = jobTimelineRepo.findById(id).orElse(null);
+            if (existing == null) {
+                return ApiResponse.error("Job timeline not found", HttpStatus.NOT_FOUND.value());
+            }
+
+            existing.setDesc(req.getDesc() != null ? req.getDesc() : existing.getDesc());
+            existing.setTitle(req.getTitle() != null ? req.getTitle() : existing.getTitle());
+            existing.setDoneBy(doneBy != null ? doneBy : existing.getDoneBy());
+
+            JobTimeline saved = jobTimelineRepo.save(existing);
+            return ApiResponse.success(200, saved, "Job timeline updated successfully");
+        } catch (Exception e){
+            logger.error("Error updating job timeline", e);
+            return ApiResponse.error("Unable to update job timeline", 500);
         }
     }
 
@@ -325,6 +368,53 @@ public class AppService {
         } catch (Exception e){
 //            deleteStoredFiles(storedFiles);
             return ApiResponse.error("Unable to create event right now. Please try again.",HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+
+    public ApiResponse<?> updateEvent(Long id, CreateEventRequest req, String doneBy) {
+        try {
+            Event existing = eventRepo.findById(id).orElse(null);
+            if (existing == null) {
+                return ApiResponse.error("Event not found.", HttpStatus.NOT_FOUND.value());
+            }
+
+            // Validate images only if provided
+            if (req.getImages() != null && !req.getImages().isEmpty()) {
+                validateEventImages(req.getImages());
+            }
+
+            existing.setTitle(req.getTitle() != null ? req.getTitle() : existing.getTitle());
+            existing.setDescription(req.getDescription() != null ? req.getDescription() : existing.getDescription());
+            existing.setLocation(req.getLocation() != null ? req.getLocation() : existing.getLocation());
+            existing.setEventDate(req.getEventDate() != null ? req.getEventDate() : existing.getEventDate());
+            existing.setVideoLink(req.getVideoLink() != null ? req.getVideoLink() : existing.getVideoLink());
+
+            // If new images provided, upload them and replace existing images (and delete old cloudinary images)
+            if (req.getImages() != null && !req.getImages().isEmpty()) {
+                // delete old cloudinary images
+                deleteCloudinaryImages(existing);
+
+                List<String> imageUrls = new ArrayList<>();
+                List<String> imagePublicIds = new ArrayList<>();
+                for (var image : req.getImages()) {
+                    Map<String, String> uploadResult = cloudinaryService.uploadImage(image);
+                    imageUrls.add(uploadResult.get("url"));
+                    imagePublicIds.add(uploadResult.get("publicId"));
+                }
+
+                existing.setImageUrls(imageUrls);
+                existing.setImagePublicIds(imagePublicIds);
+            }
+
+            existing.setDoneBy(doneBy != null ? doneBy : existing.getDoneBy());
+
+            Event saved = eventRepo.save(existing);
+            return ApiResponse.success(200, saved, "Event updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        } catch (Exception e) {
+            logger.error("Error updating event", e);
+            return ApiResponse.error("Unable to update event right now. Please try again.", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 

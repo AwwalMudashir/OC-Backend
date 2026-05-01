@@ -27,6 +27,11 @@ public class AppController {
         return appService.initializeDonation(donationRequest);
     }
 
+    @PutMapping("/event/{id}")
+    public ApiResponse<?> updateEvent(@PathVariable Long id, @ModelAttribute CreateEventRequest req, @RequestHeader(value = "X-User", required = false) String doneBy) {
+        return appService.updateEvent(id, req, doneBy);
+    }
+
     @PostMapping("/verify-donation")
     public ApiResponse<?> verify(@RequestParam String reference, @RequestParam(required = false) String name){
         return appService.verifyPayment(reference,name);
@@ -42,8 +47,18 @@ public class AppController {
         return appService.getEducationHistory();
     }
 
+    @PutMapping("/education/{id}")
+    public ApiResponse<?> updateEducation(@PathVariable Long id, @RequestBody EducationTimelineRequest req, @RequestHeader(value = "X-User", required = false) String doneBy) {
+        return appService.updateEducationTimeline(id, req, doneBy);
+    }
+
     @GetMapping("/job-history")
     public ApiResponse<?> getJobHistory(){
         return appService.getJobHistory();
+    }
+
+    @PutMapping("/job/{id}")
+    public ApiResponse<?> updateJob(@PathVariable Long id, @RequestBody JobTimelineRequest req, @RequestHeader(value = "X-User", required = false) String doneBy) {
+        return appService.updateJobTimeline(id, req, doneBy);
     }
 }
